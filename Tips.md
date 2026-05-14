@@ -2,21 +2,40 @@
 
 These examples are meant to reduce setup friction for students. Replace `/ABSOLUTE/PATH/...` with the real path on the machine.
 
-## Claude Code
+## Environment First
 
-Anthropic’s current MCP docs are here:
+Before running any command in this repo:
+
+```bash
+conda activate aitclab
+```
+
+If you are scripting from a non-interactive shell, load the conda hook first:
+
+```bash
+eval "$(conda shell.bash hook)"
+conda activate aitclab
+```
+
+## Claude Desktop
+
+Anthropic’s MCP docs are here:
 
 - https://code.claude.com/docs/en/mcp
 
-Example `.mcp.json`:
+Example `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "sqlite-lab": {
       "type": "stdio",
-      "command": "python",
-      "args": ["/ABSOLUTE/PATH/TO/implementation/mcp_server.py"],
+      "command": "C:\\Windows\\System32\\wsl.exe",
+      "args": [
+        "bash",
+        "-lc",
+        "source ~/miniconda3/etc/profile.d/conda.sh && conda activate aitclab && python /ABSOLUTE/PATH/TO/implementation/mcp_server.py --db-path /ABSOLUTE/PATH/TO/implementation/lab.db"
+      ],
       "env": {}
     }
   }
@@ -26,8 +45,14 @@ Example `.mcp.json`:
 Tips:
 
 - Use absolute paths to avoid `spawn ... ENOENT` issues.
-- Claude Code supports `@sqlite-lab:schema://database`.
+- On Windows + WSL2, do not point `command` directly at `/home/.../python`; let Windows spawn `wsl.exe` and run the Linux command inside `bash -lc`.
+- In the current Claude Desktop chat flow on this machine, MCP resources work most reliably when you attach them from `Connectors -> Add from sqlite-lab` instead of only typing the URI manually.
+- Restart Claude Desktop after editing the MCP config if the server does not appear immediately.
 - If outputs are large, check `MAX_MCP_OUTPUT_TOKENS`.
+- You can keep [claude_desktop.mcp.json.example](/home/quanghien/day26/AI20K059-HoQuangHien-Day26-Track3-MCP-tool-integration/claude_desktop.mcp.json.example) in the repo as a ready-made template.
+- On this machine, [claude_desktop_config.local.example.json](/home/quanghien/day26/AI20K059-HoQuangHien-Day26-Track3-MCP-tool-integration/claude_desktop_config.local.example.json) is the fastest starting point.
+- Anthropic’s current help center now emphasizes Desktop Extensions in Claude Desktop; for this lab, manual JSON config is still the simplest grading-friendly setup.
+- `claude_desktop_config.json` is for the chat app connector flow; the `Code` tab uses separate MCP config files.
 
 ## Codex
 
@@ -40,7 +65,7 @@ Example `~/.codex/config.toml`:
 ```toml
 [mcp_servers.sqlite_lab]
 command = "python"
-args = ["/ABSOLUTE/PATH/TO/implementation/mcp_server.py"]
+args = ["/ABSOLUTE/PATH/TO/implementation/mcp_server.py", "--db-path", "/ABSOLUTE/PATH/TO/implementation/lab.db"]
 ```
 
 Tips:
@@ -48,6 +73,8 @@ Tips:
 - Keep the server name short and descriptive.
 - Add project instructions in `AGENTS.md` telling the agent when to use the database MCP server.
 - Verify with `codex mcp list` if the CLI version supports it.
+- Use the exact `python` from the `aitclab` environment.
+- Treat Codex as optional verification; for this lab, prioritize Claude Desktop in screenshots and demo flow.
 
 Suggested `AGENTS.md` snippet:
 
@@ -145,5 +172,12 @@ Checklist:
 
 - tools appear with schemas
 - resources appear
+- resource templates appear
 - valid tool call succeeds
 - invalid tool call returns a clear error
+
+## Bonus Tips
+
+- For bonus network transport, use `--transport sse` or `--transport streamable-http` together with `--auth-token`.
+- For bonus PostgreSQL support, use `--db-backend postgres --postgres-dsn ...`.
+- Keep stdio as the default path for grading because it is the lowest-friction MCP setup.

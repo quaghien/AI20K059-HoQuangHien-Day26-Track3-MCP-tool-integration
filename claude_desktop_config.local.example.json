@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "sqlite-lab": {
+      "type": "stdio",
+      "command": "C:\\Windows\\System32\\wsl.exe",
+      "args": [
+        "bash",
+        "-lc",
+        "source ~/miniconda3/etc/profile.d/conda.sh && conda activate aitclab && python /home/quanghien/day26/AI20K059-HoQuangHien-Day26-Track3-MCP-tool-integration/implementation/mcp_server.py --db-path /home/quanghien/day26/AI20K059-HoQuangHien-Day26-Track3-MCP-tool-integration/implementation/lab.db"
+      ],
+      "env": {}
+    }
+  }
+}
